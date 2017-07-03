@@ -1,0 +1,17 @@
+SUBCASE 1
+SPC = 10001
+LOAD = 10002
+
+BEGIN BULK
+include grids.fem
+INCLUDE elements.fem
+MAT1           1    2e+6             0.3
+PSHELL      1001       1    0.05
+SPC1       10001       3     101     102     103     104     
+SPC1       10001       1     101     104
+SPC1       10001       2     101     102
+
+FORCE      10002     102             1.0   200.0     0.0     0.0     
+FORCE      10002     103             1.0   200.0     0.0     0.0     
+
+ENDDATA
