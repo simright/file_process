@@ -45,8 +45,8 @@ class TestFileProcess(unittest.TestCase):
         all_file = AllFile()
         found_master_file_path = all_file.find_master_file(list_all_file_path)
 
-        for path in found_master_file_path:
-            assert path in list_master_file_path
+        for path in list_master_file_path:
+            assert path in found_master_file_path
         assert len(found_master_file_path) == len(master_fname)
         print 'Test passed'
 
