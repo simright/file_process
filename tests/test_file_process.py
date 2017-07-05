@@ -5,49 +5,41 @@ from file_process.master_file import AllFile
 
 
 class TestFileProcess(unittest.TestCase):
-    def setUp(self):
-        self.fullpath_dir_of_models = os.path.normpath(os.path.join(os.path.dirname(__file__), 'data'))
-
-    def get_model_path(self, fname):
-        return os.path.join(self.fullpath_dir_of_models, fname)
 
     def test_io(self):
         print 'Testing File Process ...'
 
-        all_fname = [
-                    "includes/nodes.k",
-                    "includes/elements.k",
-                    "elements.fem",
-                    "elements.inp",
-                    "quad.fem",
-                    "quad.bdf",
-                    "grids.bdf",
-                    "nodes.inp",
-                    "elements.bdf",
-                    "quad.k",
-                    "grids.fem",
-                    "quad.inp",
-                    ]
-        master_fname = [
-                    "quad.fem",
-                    "quad.bdf",
-                    "quad.k",
-                    "quad.inp",
-                       ]
-        list_all_file_path = list()
-        list_master_file_path = list()
+        list_folder_name = [
+                    "data/abaqus(.inp)",
+                    "data/nastran(.bdf)",
+                    "data/optistruct(.fem)",
+                    "data/dyna(.k)",
+        ]
 
-        for filename in master_fname:
-            list_master_file_path.append(self.get_model_path(filename))
-        for filename in all_fname:
-            list_all_file_path.append(self.get_model_path(filename))
+        all_master_file_path = [
+                    "data/optistruct(.fem)/quad.fem",
+                    "data/nastran(.bdf)/quad.bdf",
+                    "data/dyna(.k)/quad.k",
+                    "data/abaqus(.inp)/quad.inp",
+        ]
 
-        all_file = AllFile()
-        found_master_file_path = all_file.find_master_file(list_all_file_path)
+        for test_folder_name in list_folder_name:
+            all_file_path = list()
+            for root, dirs, files in os.walk(test_folder_name):
+                for path in files:
+                    all_file_path.append(os.path.join(root, path))
 
-        for path in list_master_file_path:
-            assert path in found_master_file_path
-        assert len(found_master_file_path) == len(master_fname)
+            allfile = AllFile()
+            master_file_path = allfile.find_master_file(all_file_path)
+
+            if type(master_file_path) == str:
+                assert master_file_path in all_master_file_path
+            elif type(master_file_path) == list:
+                for path in master_file_path:
+                    assert path in all_master_file_path
+            else:
+                raise ValueError
+
         print 'Test passed'
 
 if __name__ == '__main__':

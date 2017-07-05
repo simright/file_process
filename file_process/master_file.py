@@ -3,7 +3,7 @@ class AllFile(object):
         self._all_files_dict = dict()
         self._master_files = dict()
 
-    def find_master_file(self, list_file_path):
+    def find_master_file(self, list_file_path, multi_master_file=False):
         for file_path in list_file_path:
             file_full_name = file_path.split('/')[-1].upper()
             file_ext = file_full_name.split('.')[-1].upper()
@@ -28,8 +28,10 @@ class AllFile(object):
 
         if len(self.master_files) == 1:
             return self.master_files.values()[0].file_path
-        else:
+        elif len(self.master_files) > 1 and multi_master_file:
             return [self.master_files[key].file_path for key in self.master_files]
+        else:
+            raise ValueError
 
     def abaqus_file_process(self, data):
         with open(data.file_path, 'r') as fo:
