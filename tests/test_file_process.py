@@ -14,6 +14,7 @@ class TestFileProcess(unittest.TestCase):
                     "data/nastran(.bdf)",
                     "data/optistruct(.fem)",
                     "data/dyna(.k)",
+                    "data/ansys(.cdb)",
         ]
 
         all_master_file_path = [
@@ -21,6 +22,7 @@ class TestFileProcess(unittest.TestCase):
                     "data/nastran(.bdf)/quad.bdf",
                     "data/dyna(.k)/quad.k",
                     "data/abaqus(.inp)/quad.inp",
+                    "data/ansys(.cdb)/cloads.cdb"
         ]
 
         # paths of all files are given
