@@ -1,10 +1,25 @@
+import os
+
+
 class AllFile(object):
     def __init__(self):
         self._all_files_dict = dict()
         self._master_files = dict()
 
-    def find_master_file(self, list_file_path, multi_master_file=False):
-        for file_path in list_file_path:
+    # If file_path=True, variable 'path' is a list. 'path' should contains all files' path
+    # If folder_path=True, variable 'path' is a string. 'path' give folder's path.
+    def find_master_file(self, path, file_path=False, folder_path=False, multi_master_file=False):
+        path_list = list()
+        if folder_path:
+            for root, dirs, files in os.walk(path):
+                for path in files:
+                    path_list.append(os.path.join(root, path))
+        elif file_path:
+            path_list = path
+        else:
+            raise ValueError
+
+        for file_path in path_list:
             file_full_name = file_path.split('/')[-1].upper()
             file_ext = file_full_name.split('.')[-1].upper()
             self.all_files_dict[file_full_name] = FileInform(file_path, file_ext)
@@ -13,14 +28,14 @@ class AllFile(object):
             data = self.all_files_dict[key]
             if data.file_ext == 'INP':
                 self.abaqus_file_process(data)
-            elif data.file_ext == 'K' or data.file_ext == 'KEY':
+            elif data.file_ext in ('K', 'KEY'):
                 self.lsdyna_file_process(data)
             elif data.file_ext == 'BDF':
                 self.nastran_file_process(data)
             elif data.file_ext == 'FEM':
                 self.optistruct_file_process(data)
             else:
-                raise ValueError
+                self.all_files_dict.pop(key)
 
         for key in self.all_files_dict.keys():
             if not self.all_files_dict[key].master_file_path:
