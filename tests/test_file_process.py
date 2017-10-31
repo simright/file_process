@@ -23,6 +23,7 @@ class TestFileProcess(unittest.TestCase):
                     "data/abaqus(.inp)/quad.inp",
         ]
 
+        # paths of all files are given
         for test_folder_name in list_folder_name:
             all_file_path = list()
             for root, dirs, files in os.walk(test_folder_name):
@@ -30,7 +31,20 @@ class TestFileProcess(unittest.TestCase):
                     all_file_path.append(os.path.join(root, path))
 
             allfile = AllFile()
-            master_file_path = allfile.find_master_file(all_file_path)
+            master_file_path = allfile.find_master_file(all_file_path, file_path=True)
+
+            if type(master_file_path) == str:
+                assert master_file_path in all_master_file_path
+            elif type(master_file_path) == list:
+                for path in master_file_path:
+                    assert path in all_master_file_path
+            else:
+                raise ValueError
+
+        # path of folder is given
+        for test_folder_name in list_folder_name:
+            allfile = AllFile()
+            master_file_path = allfile.find_master_file(test_folder_name, folder_path=True)
 
             if type(master_file_path) == str:
                 assert master_file_path in all_master_file_path
