@@ -6,15 +6,13 @@ class AllFile(object):
         self._all_files_dict = dict()
         self._master_files = dict()
 
-    # If file_path=True, variable 'path' is a list. 'path' should contains all files' path
-    # If folder_path=True, variable 'path' is a string. 'path' give folder's path.
-    def find_master_file(self, path, file_path=False, folder_path=False, multi_master_file=False):
+    def find_master_file(self, path, multi_master_file=False):
         path_list = list()
-        if folder_path:
+        if isinstance(path, str):
             for root, dirs, files in os.walk(path):
                 for path in files:
                     path_list.append(os.path.join(root, path))
-        elif file_path:
+        elif isinstance(path, list):
             path_list = path
         else:
             raise ValueError
@@ -30,10 +28,12 @@ class AllFile(object):
                 self.abaqus_file_process(data)
             elif data.file_ext in ('K', 'KEY'):
                 self.lsdyna_file_process(data)
-            elif data.file_ext == 'BDF':
+            elif data.file_ext in ('BDF', 'NAS'):
                 self.nastran_file_process(data)
             elif data.file_ext == 'FEM':
                 self.optistruct_file_process(data)
+            elif data.file_ext in ('CDB', 'STL', 'OBJ', 'OFF', 'PLY'):
+                pass
             else:
                 self.all_files_dict.pop(key)
 
@@ -43,8 +43,11 @@ class AllFile(object):
 
         if len(self.master_files) == 1:
             return self.master_files.values()[0].file_path
-        elif len(self.master_files) > 1 and multi_master_file:
-            return [self.master_files[key].file_path for key in self.master_files]
+        elif len(self.master_files) > 1:
+            if multi_master_file:
+                return [self.master_files[key].file_path for key in self.master_files]
+            else:
+                return [self.master_files[key].file_path for key in self.master_files][0]
         else:
             raise ValueError
 
