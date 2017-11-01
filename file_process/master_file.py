@@ -52,7 +52,7 @@ class AllFile(object):
             else:
                 return [self.master_files[key].file_path for key in self.master_files][0]
         else:
-            raise ValueError
+            return None
 
     def abaqus_file_process(self, data):
         with open(data.file_path, 'r') as fo:
