@@ -1,6 +1,5 @@
 import os
 
-
 class AllFile(object):
     def __init__(self):
         self._all_files_dict = dict()
@@ -167,3 +166,6 @@ class FileInform(object):
     @slave_file_path.setter
     def slave_file_path(self, value):
         self._slave_file_path.append(value)
+
+ def find_master(path, multi_master_file=False):
+    return AllFile().find_master(path, multi_master_file=multi_master_file)
