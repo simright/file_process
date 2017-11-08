@@ -167,5 +167,6 @@ class FileInform(object):
     def slave_file_path(self, value):
         self._slave_file_path.append(value)
 
- def find_master(path, multi_master_file=False):
-    return AllFile().find_master(path, multi_master_file=multi_master_file)
+
+def find_master(path, multi_master_file=False):
+    return AllFile().find_master_file(path, multi_master_file=multi_master_file)

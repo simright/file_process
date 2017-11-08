@@ -1,10 +1,10 @@
 import unittest
 import os
 
-from file_process.master_file import AllFile
+from fem_utils.master_file import find_master
 
 
-class TestFileProcess(unittest.TestCase):
+class TestFindMaster(unittest.TestCase):
 
     def test_io(self):
         print 'Testing File Process ...'
@@ -32,8 +32,7 @@ class TestFileProcess(unittest.TestCase):
                 for path in files:
                     all_file_path.append(os.path.join(root, path))
 
-            allfile = AllFile()
-            master_file_path = allfile.find_master_file(all_file_path)
+            master_file_path = find_master(all_file_path)
 
             if type(master_file_path) == str:
                 assert master_file_path in all_master_file_path
@@ -45,8 +44,7 @@ class TestFileProcess(unittest.TestCase):
 
         # path of folder is given
         for test_folder_name in list_folder_name:
-            allfile = AllFile()
-            master_file_path = allfile.find_master_file(test_folder_name)
+            master_file_path = find_master(test_folder_name)
 
             if type(master_file_path) == str:
                 assert master_file_path in all_master_file_path

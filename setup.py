@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='file_process',
+    name='fem_utils',
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
 )
