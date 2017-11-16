@@ -27,9 +27,9 @@ class AllFile(object):
             data = self.all_files_dict[key]
             if data.file_ext == 'INP':
                 self.abaqus_file_process(data)
-            elif data.file_ext in ('K', 'KEY'):
+            elif data.file_ext in ('K', 'KEY', 'DYN'):
                 self.lsdyna_file_process(data)
-            elif data.file_ext in ('BDF', 'NAS'):
+            elif data.file_ext in ('BDF', 'NAS', 'DAT'):
                 self.nastran_file_process(data)
             elif data.file_ext == 'FEM':
                 self.optistruct_file_process(data)
