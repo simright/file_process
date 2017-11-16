@@ -1,3 +1,4 @@
+*.pyc
 file_process.egg-info/
 .idea/
 
