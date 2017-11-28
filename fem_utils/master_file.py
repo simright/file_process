@@ -5,21 +5,8 @@ class AllFile(object):
         self._all_files_dict = dict()
         self._master_files = dict()
 
-    def find_master_file(self, path, multi_master_file=False):
-        path_list = list()
-        if isinstance(path, str):
-            assert os.path.isdir(path)
-            for root, dirs, files in os.walk(path):
-                for path in files:
-                    path_list.append(os.path.join(root, path))
-        elif isinstance(path, list):
-            for value in path:
-                assert os.path.isfile(value)
-            path_list = path
-        else:
-            raise ValueError
-
-        for file_path in path_list:
+    def find_master_by_files(self, files, multi_master_file=False):
+        for file_path in files:
             file_full_name = file_path.split('/')[-1].upper()
             file_ext = file_full_name.split('.')[-1].upper()
             self.all_files_dict[file_full_name] = FileInform(file_path, file_ext)
@@ -52,6 +39,24 @@ class AllFile(object):
                 return [self.master_files[key].file_path for key in self.master_files][0]
         else:
             return None
+
+    def find_master_by_folder(self, folder, multi_master_file=False):
+        assert os.path.isdir(folder)
+
+        path_list = list()
+        for root, dirs, files in os.walk(folder):
+            for path in files:
+                path_list.append(os.path.join(root, path))
+
+        return self.find_master_by_files(path_list, multi_master_file=multi_master_file)
+
+    def find_master_file(self, path, multi_master_file=False):
+        if isinstance(path, str):
+            return self.find_master_by_folder(path, multi_master_file=multi_master_file)
+        elif isinstance(path, list):
+            return self.find_master_by_files(path, multi_master_file=multi_master_file)
+        else:
+            raise ValueError
 
     def abaqus_file_process(self, data):
         with open(data.file_path, 'r') as fo:
@@ -170,3 +175,11 @@ class FileInform(object):
 
 def find_master(path, multi_master_file=False):
     return AllFile().find_master_file(path, multi_master_file=multi_master_file)
+
+
+def find_master_by_files(files, multi_master_file=False):
+    return AllFile().find_master_file(files, multi_master_file=multi_master_file)
+
+
+def find_master_by_folder(folder, multi_master_file=False):
+    return AllFile().find_master_file(folder, multi_master_file=multi_master_file)
