@@ -5,56 +5,45 @@ from fem_utils.master_file import find_master
 
 
 class TestFindMaster(unittest.TestCase):
+    def setUp(self):
+        self._data_dir = os.path.join(os.path.dirname(__file__), 'data')
 
     def test_io(self):
-        print 'Testing File Process ...'
-
-        list_folder_name = [
-                    "data/abaqus(.inp)",
-                    "data/nastran(.bdf)",
-                    "data/optistruct(.fem)",
-                    "data/dyna(.k)",
-                    "data/ansys(.cdb)",
+        list_folder_master = [
+            ["abaqus(.inp)",     "quad.inp"],
+            ["nastran(.bdf)",    "quad.bdf"],
+            ["optistruct(.fem)", "quad.fem"],
+            ["dyna(.k)",         "quad.k"],
+            ["ansys(.cdb)",      "cloads.cdb"]
         ]
 
-        all_master_file_path = [
-                    "data/optistruct(.fem)/quad.fem",
-                    "data/nastran(.bdf)/quad.bdf",
-                    "data/dyna(.k)/quad.k",
-                    "data/abaqus(.inp)/quad.inp",
-                    "data/ansys(.cdb)/cloads.cdb"
-        ]
+        for test_folder_name, master_name in list_folder_master:
+            test_folder_path = os.path.join(self._data_dir, test_folder_name)
 
-        # paths of all files are given
-        for test_folder_name in list_folder_name:
+            # paths of all files are given
             all_file_path = list()
-            for root, dirs, files in os.walk(test_folder_name):
+            for root, dirs, files in os.walk(test_folder_path):
                 for path in files:
                     all_file_path.append(os.path.join(root, path))
 
             master_file_path = find_master(all_file_path)
 
-            if type(master_file_path) == str:
-                assert master_file_path in all_master_file_path
-            elif type(master_file_path) == list:
-                for path in master_file_path:
-                    assert path in all_master_file_path
+            if isinstance(master_file_path, str):
+                self.assertEqual(os.path.normpath(master_file_path), os.path.normpath(os.path.join(test_folder_path, master_name)))
+            elif isinstance(master_file_path, list):
+                self.assertIn(os.path.normpath(os.path.join(test_folder_path, master_name)), master_file_path)
             else:
                 raise ValueError
 
-        # path of folder is given
-        for test_folder_name in list_folder_name:
-            master_file_path = find_master(test_folder_name)
-
+            # path of folder is given
+            master_file_path = find_master(test_folder_path)
             if type(master_file_path) == str:
-                assert master_file_path in all_master_file_path
+                self.assertEqual(os.path.normpath(master_file_path), os.path.normpath(os.path.join(test_folder_path, master_name)))
             elif type(master_file_path) == list:
-                for path in master_file_path:
-                    assert path in all_master_file_path
+                self.assertIn(os.path.normpath(os.path.join(test_folder_path, master_name)), master_file_path)
             else:
                 raise ValueError
 
-        print 'Test passed'
 
 if __name__ == '__main__':
     unittest.main()

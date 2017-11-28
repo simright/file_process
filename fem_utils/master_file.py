@@ -7,7 +7,8 @@ class AllFile(object):
 
     def find_master_file(self, path, multi_master_file=False):
         path_list = list()
-        if os.path.isdir(path):
+        if isinstance(path, str):
+            assert os.path.isdir(path)
             for root, dirs, files in os.walk(path):
                 for path in files:
                     path_list.append(os.path.join(root, path))
