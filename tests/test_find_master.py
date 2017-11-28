@@ -14,7 +14,8 @@ class TestFindMaster(unittest.TestCase):
             ["nastran(.bdf)",    "quad.bdf"],
             ["optistruct(.fem)", "quad.fem"],
             ["dyna(.k)",         "quad.k"],
-            ["ansys(.cdb)",      "cloads.cdb"]
+            ["ansys(.cdb)",      "cloads.cdb"],
+            ["nastran2",         "A320.bdf"]
         ]
 
         for test_folder_name, master_name in list_folder_master:
