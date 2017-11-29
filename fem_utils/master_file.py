@@ -1,171 +1,84 @@
 import os
 
-class AllFile(object):
-    def __init__(self):
-        self._all_files_dict = dict()
-        self._master_files = dict()
-
-    def find_master_file(self, path, multi_master_file=False):
-        path_list = list()
-        if os.path.isdir(path):
-            for root, dirs, files in os.walk(path):
-                for path in files:
-                    path_list.append(os.path.join(root, path))
-        elif isinstance(path, list):
-            for value in path:
-                assert os.path.isfile(value)
-            path_list = path
-        else:
-            raise ValueError
-
-        for file_path in path_list:
-            file_full_name = file_path.split('/')[-1].upper()
-            file_ext = file_full_name.split('.')[-1].upper()
-            self.all_files_dict[file_full_name] = FileInform(file_path, file_ext)
-
-        for key in self.all_files_dict.keys():
-            data = self.all_files_dict[key]
-            if data.file_ext == 'INP':
-                self.abaqus_file_process(data)
-            elif data.file_ext in ('K', 'KEY', 'DYN'):
-                self.lsdyna_file_process(data)
-            elif data.file_ext in ('BDF', 'NAS', 'DAT'):
-                self.nastran_file_process(data)
-            elif data.file_ext == 'FEM':
-                self.optistruct_file_process(data)
-            elif data.file_ext in ('CDB', 'STL', 'OBJ', 'OFF', 'PLY'):
-                pass
-            else:
-                self.all_files_dict.pop(key)
-
-        for key in self.all_files_dict.keys():
-            if not self.all_files_dict[key].master_file_path:
-                self.master_files[key] = self.all_files_dict[key]
-
-        if len(self.master_files) == 1:
-            return self.master_files.values()[0].file_path
-        elif len(self.master_files) > 1:
-            if multi_master_file:
-                return [self.master_files[key].file_path for key in self.master_files]
-            else:
-                return [self.master_files[key].file_path for key in self.master_files][0]
-        else:
-            return None
-
-    def abaqus_file_process(self, data):
-        with open(data.file_path, 'r') as fo:
-            while 1:
-                line = fo.readline()
-                if not line:
-                    break
-                line.strip()
-                fields = line.split(',')
-                if fields[0].upper() == '*INCLUDE':
-                    file_full_name = fields[-1].split('=')[-1].strip().upper()
-                    slave_file = self.all_files_dict[file_full_name]
-                    slave_file.master_file_path = data.file_path
-                    data.slave_file_path = slave_file.file_path
-
-    def lsdyna_file_process(self, data):
-        line_process_switch = False
-        with open(data.file_path, 'r') as fo:
-            while 1:
-                line = fo.readline()
-                if not line:
-                    break
-                line = line.strip()
-                if line.upper().startswith('*INCLUDE'):
-                    line_process_switch = True
-                elif line.upper().startswith('*'):
-                    line_process_switch = False
-                if line_process_switch and not line.startswith('*'):
-                    file_full_name = line.split('/')[-1].strip().upper()
-                    slave_file = self.all_files_dict[file_full_name]
-                    slave_file.master_file_path = data.file_path
-                    data.slave_file_path = slave_file.file_path
-
-    def nastran_file_process(self, data):
-        with open(data.file_path, 'r') as fo:
-            while 1:
-                line = fo.readline()
-                if not line:
-                    break
-                line.strip()
-                fields = line.split(' ')
-                if fields[0].upper() == 'INCLUDE':
-                    file_full_name = fields[-1].split('/')[-1].strip().upper()
-                    slave_file = self.all_files_dict[file_full_name]
-                    slave_file.master_file_path = data.file_path
-                    data.slave_file_path = slave_file.file_path
-
-    def optistruct_file_process(self, data):
-        with open(data.file_path, 'r') as fo:
-            while 1:
-                line = fo.readline()
-                if not line:
-                    break
-                line.strip()
-                fields = line.split(' ')
-                if fields[0].upper() == 'INCLUDE':
-                    file_full_name = fields[-1].split('/')[-1].strip().upper()
-                    slave_file = self.all_files_dict[file_full_name]
-                    slave_file.master_file_path = data.file_path
-                    data.slave_file_path = slave_file.file_path
-
-    @property
-    def all_files_dict(self):
-        return self._all_files_dict
-
-    @property
-    def master_files(self):
-        return self._master_files
+from fem_utils import abaqus_utils
+from fem_utils import ansys_utils
+from fem_utils import lsdyna_utils
+from fem_utils import nastran_utils
+from fem_utils import optistruct_utils
 
 
-class FileInform(object):
-    def __init__(self, input_file_path=None, file_ext=None):
-        self._file_path = input_file_path
-        self._file_ext = file_ext
-        self._master_file_path = list()
-        self._slave_file_path = list()
+def find_includes_by_files(files):
+    result = list()
+    for fpath in files:
+        assert os.path.isfile(fpath)
+        if abaqus_utils.is_abaqus_fname(fpath):
+            result.extend(abaqus_utils.get_include_files(fpath))
+        elif ansys_utils.is_ansys_fname(fpath):
+            result.extend(ansys_utils.get_include_files(fpath))
+        elif lsdyna_utils.is_lsdyna_fname(fpath):
+            result.extend(lsdyna_utils.get_include_files(fpath))
+        elif nastran_utils.is_nastran_fname(fpath):
+            result.extend(nastran_utils.get_include_files(fpath))
+        elif optistruct_utils.is_optistruct_fname(fpath):
+            result.extend(optistruct_utils.get_include_files(fpath))
 
-    def fix_master_file_path(self):
-        pass
-
-    def fix_slave_file_path(self):
-        pass
-
-    @property
-    def file_path(self):
-        return self._file_path
-
-    @file_path.setter
-    def file_path(self, value):
-        self._file_path = value
-
-    @property
-    def file_ext(self):
-        return self._file_ext
-
-    @file_ext.setter
-    def file_ext(self, value):
-        self._file_ext = value
-
-    @property
-    def master_file_path(self):
-        return self._master_file_path
-
-    @master_file_path.setter
-    def master_file_path(self, value):
-        self._master_file_path.append(value)
-
-    @property
-    def slave_file_path(self):
-        return self._slave_file_path
-
-    @slave_file_path.setter
-    def slave_file_path(self, value):
-        self._slave_file_path.append(value)
+    return result
 
 
-def find_master(path, multi_master_file=False):
-    return AllFile().find_master_file(path, multi_master_file=multi_master_file)
+def is_fem_fname(fpath):
+    return abaqus_utils.is_abaqus_fname(fpath) or \
+           ansys_utils.is_ansys_fname(fpath) or \
+           lsdyna_utils.is_lsdyna_fname(fpath) or \
+           ansys_utils.is_ansys_fname(fpath) or \
+           nastran_utils.is_nastran_fname(fpath) or \
+           optistruct_utils.is_optistruct_fname(fpath)
+
+
+def find_master(path):
+    if isinstance(path, str):
+        return find_master_by_folder(path)
+    elif isinstance(path, list):
+        return find_master_by_files(path)
+    else:
+        raise ValueError
+
+
+def find_masters_by_files(files):
+    include_files = find_includes_by_files(files)
+    master_files = list()
+    for fpath in files:
+        assert os.path.isfile(fpath)
+        if is_fem_fname(fpath):
+            if fpath not in include_files:
+                master_files.append(fpath)
+
+    return master_files
+
+
+def find_masters_by_folder(folder):
+    assert os.path.isdir(folder)
+
+    list_files = list()
+    for root, dirs, files in os.walk(folder):
+        for path in files:
+            list_files.append(os.path.join(root, path))
+
+    return find_masters_by_files(list_files)
+
+
+def find_master_by_files(files):
+    master_files = find_masters_by_files(files)
+    if len(master_files) > 0:
+        assert len(master_files) == 1
+        return master_files[0]
+
+    return None
+
+
+def find_master_by_folder(folder):
+    master_files = find_masters_by_folder(folder)
+    if len(master_files) > 0:
+        assert len(master_files) == 1
+        return master_files[0]
+
+    return None
