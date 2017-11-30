@@ -35,7 +35,7 @@ def is_fem_fname(fpath):
 
 
 def find_master(path):
-    if isinstance(path, str):
+    if isinstance(path, (str, unicode)):
         return find_master_by_folder(path)
     elif isinstance(path, list):
         return find_master_by_files(path)
