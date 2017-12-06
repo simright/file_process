@@ -1,3 +1,5 @@
 fem_utils.egg-info/
 .idea/
+*.pyc
+
 
