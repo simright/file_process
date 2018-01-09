@@ -1,6 +1,9 @@
-import os
+import os, re
 
 from fem_utils import common_utils
+
+BDF_PATTERN = '''[\'\"](.+?)\.bdf[\'\"]$'''
+DAT_PATTERN = '''[\'\"](.+?)\.dat[\'\"]$'''
 
 
 def is_nastran_ext(ext):
@@ -31,3 +34,31 @@ def get_include_files(fpath):
                     include_files.append(common_utils.get_abspath(basedir, item))
 
     return include_files
+
+
+def is_nastran_file(fpath):
+    if is_nastran_fname(fpath):
+        return True
+    return is_nastran_file_by_content(fpath)
+
+
+def is_nastran_file_by_content(fpath):
+    with open(fpath, 'r+') as fp:
+        f_content_line_list = fp.readlines()
+        for line in f_content_line_list:
+            if line.startswith('GRID') or line.startswith('grid'):
+                return True
+            if line.startswith('INCLUDE') or line.startswith('include'):
+                wordsInLine_list = line.split()
+                if re.match(BDF_PATTERN, wordsInLine_list[1]) or re.match(DAT_PATTERN, wordsInLine_list[1]):
+                    return True
+
+    return False
+
+def nastran_keywords():
+    return ['GRID']
+
+
+if __name__ == "__main__":
+    fpath = ''
+    print(is_nastran_file_by_content(fpath))
