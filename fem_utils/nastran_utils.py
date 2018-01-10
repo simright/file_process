@@ -49,10 +49,16 @@ def is_nastran_file_by_content(fpath):
             if line.startswith('GRID') or line.startswith('grid'):
                 return True
             if line.startswith('INCLUDE') or line.startswith('include'):
+                line = line.strip()
                 wordsInLine_list = line.split()
-                if re.match(BDF_PATTERN, wordsInLine_list[1]) or re.match(DAT_PATTERN, wordsInLine_list[1]):
-                    return True
-
+                if len(wordsInLine_list) > 1:
+                    include_fname = wordsInLine_list[1]
+                    include_fname = include_fname.strip('"')
+                    include_fname = include_fname.strip("'")
+                    include_fpath = os.path.join(os.path.dirname(fpath), include_fname)
+                    if os.path.isfile(include_fpath):
+                        if is_nastran_file_by_content(include_fpath):
+                            return True
     return False
 
 def nastran_keywords():
@@ -60,5 +66,5 @@ def nastran_keywords():
 
 
 if __name__ == "__main__":
-    fpath = ''
+    fpath = 'E:/Works/GitProject/fem_utils/tests/data/nastran(.bdf)/quad_no_ext'
     print(is_nastran_file_by_content(fpath))
