@@ -54,7 +54,7 @@ def is_lsdyna_file_by_content(fpath):
                 while next_ind <= len(f_content_line_list) and f_content_line_list[next_ind].startswith('$'):
                     next_ind += 1
                 next_line = f_content_line_list[next_ind].strip()
-                if re.match(r'^\d(.+?)', next_line) and not re.search(r',', next_line):
+                if re.match(r'^\d+', next_line) and not re.search(r',', next_line):
                     return True
             if line.startswith('*INCLUDE') or line.startswith('*include'):
                 index = f_content_line_list.index(line)
@@ -62,11 +62,14 @@ def is_lsdyna_file_by_content(fpath):
                 while next_ind <= len(f_content_line_list) and f_content_line_list[next_ind].startswith('$'):
                     next_ind += 1
                 next_line = f_content_line_list[next_ind].strip()
-                if re.match(r'''(.+?)\.k$''', next_line.strip()) or re.match(r'''(.+?)\.key$''', next_line.strip()) or re.match(r'''(.+?)\.dyn$''', next_line.strip()):
-                    return True
+                include_fname = next_line
+                include_fpath = os.path.join(os.path.dirname(fpath), include_fname)
+                if os.path.isfile(include_fpath):
+                    if is_lsdyna_file_by_content(include_fpath):
+                        return True
     return False
 
 
 if __name__ == "__main__":
-    fpath = 'E:/Works/GitProject/fem_utils/tests/data/dyna(.k)/elements_no_ext'
+    fpath = 'E:/Works/GitProject/fem_utils/tests/data/dyna(.k)/quad_no_ext'
     print(is_lsdyna_file(fpath))
