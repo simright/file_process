@@ -1,9 +1,6 @@
-import os, re
+import os
 
 from fem_utils import common_utils
-
-BDF_PATTERN = '''[\'\"](.+?)\.bdf[\'\"]$'''
-DAT_PATTERN = '''[\'\"](.+?)\.dat[\'\"]$'''
 
 
 def is_nastran_ext(ext):
