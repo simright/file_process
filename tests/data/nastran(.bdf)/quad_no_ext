@@ -4,7 +4,7 @@ LOAD = 10002
 
 BEGIN BULK
 include 'grids.bdf'
-INCLUDE "elements.bdf"
+INCLUDE 'elements.bdf'
 MAT1           1    2e+6             0.3
 PSHELL      1001       1    0.05
 SPC1       10001       3     101     102     103     104     
