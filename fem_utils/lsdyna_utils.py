@@ -53,10 +53,15 @@ def is_lsdyna_file_by_content(fpath):
         f_content_line_list = fp.readlines()
         for line in f_content_line_list:
             line_lower = line.strip().lower()
+            # if have *keyword, it must be lsdyna file
             if re.search(r'\*keyword', line_lower):
                 return True
+            # lsdyna and abaqus have the same keywords, *node/*element,
+            # so if have this two keywords, must using the following content below the keywords to check
+            # if have commas ",", must be abaqus file, otherwise, is lsdyna file
             if re.search(r'^(\*node)|(\*element)', line_lower):
-                # compare the following lines, because ls-dyna file also has the same *node keyword
+                if re.search(r',', line_lower):
+                    return False
                 index = f_content_line_list.index(line)
                 next_ind = index + 1
                 if next_ind >= len(f_content_line_list):
@@ -66,9 +71,10 @@ def is_lsdyna_file_by_content(fpath):
                 next_line = f_content_line_list[next_ind].strip()
                 if re.match(r'^\d+', next_line) and not re.search(r',', next_line):
                     return True
+                return False
             if re.search(lsdyna_keywords_pattern(), line_lower):
                 return True
-            if line_lower.lower() == '*include':
+            if line_lower == '*include':
                 return True
         return False
 

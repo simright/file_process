@@ -38,7 +38,7 @@ def is_abaqus_file(fpath):
 
 
 def abaqus_keywords_pattern():
-    keywords_pattern = r'^(\*node)|(\*element)|(\*material)|(\*part)|(\*boundary)|(\*step)|(\*include)|(\*cloud)|(\*dload)'
+    keywords_pattern = r'^(\*node)|(\*element)|(\*material)|(\*part)|(\*boundary)|(\*step)|(\*cloud)|(\*dload)'
     return keywords_pattern
 
 
@@ -47,9 +47,13 @@ def is_abaqus_file_by_content(fpath):
         f_content_line_list = fp.readlines()
         for line in f_content_line_list:
             line_lower = line.strip().lower()
-            if re.search(r'\*heading', line_lower):
+            # if have *keyword, it must be lsdyna file
+            if re.search(r'^\*heading', line_lower):
                 return True
-            if re.search(abaqus_keywords_pattern(), line_lower):
+            # lsdyna and abaqus have the same keywords, *node/*element,
+            # so if have this two keywords, must using the following content below the keywords to check
+            # if have commas ",", must be abaqus file, otherwise, is lsdyna file
+            if re.search(r'^(\*node)|(\*element)', line_lower):
                 if re.search(r',', line_lower):
                     return True
                 # compare the following lines, because ls-dyna file also has the same *node keyword
@@ -62,6 +66,11 @@ def is_abaqus_file_by_content(fpath):
                 next_line = f_content_line_list[next_ind].strip()
                 if re.match(r'^\d+', next_line) and re.search(r',', next_line):
                     return True
+                return False
+            if re.search(abaqus_keywords_pattern(), line_lower):
+                return True
+            if line_lower.startswith('*include') and re.search(r',', line_lower):
+                return True
         return False
 
 
