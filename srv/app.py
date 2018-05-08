@@ -26,9 +26,9 @@ def main():
             return make_response("when find master file, it's error", 400)
 
         if master_file_path is None:
-            return make_response(jsonify({'masterfile':'', 'status':'0'}), 200)
+            return make_response(jsonify({'masterfile':'', 'status':'1'}), 200)
         else:
-            return make_response(jsonify({'masterfile':master_file_path, 'status':'1'}), 200)
+            return make_response(jsonify({'masterfile':master_file_path, 'status':'0'}), 200)
 
     
     return make_response('Bad Request', 400)
