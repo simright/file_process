@@ -6,7 +6,9 @@ from fem_utils.master_file import find_master
 
 class TestFindMaster(unittest.TestCase):
     def setUp(self):
-        self._data_dir = os.path.join(os.path.dirname(__file__), 'data')
+        fileDir = os.path.dirname(os.path.abspath("__file__"))
+        self._data_dir = os.path.join(fileDir, 'data')
+        #print "data directory=", self._data_dir
 
     def test_io(self):
         list_folder_master = [
